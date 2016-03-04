@@ -1,28 +1,40 @@
 import os
 import re
+import fnmatch
 
 class NPMHunter:
     def __init__(self, path):
-        os.chdir(path)
+        self.packages = [] # how many entry points for npm are there?
+        self.active = False
         
-        if os.path.isfile('package.json'):
-            self.active = True
-        else:
-            self.active = False
+        for root, dirs, files in os.walk(path):
+            if re.search('node_modules', root) == None:
+                for name in files:
+                    if fnmatch.fnmatch(name, 'package.json'):
+                        self.packages.append(root)
+                        self.active = True
+                    
+        print 'self.packages: ' + str(self.packages)
+                    
             
     def find_command(self, regex):
         """
-        Searches for a given command in package.json, or False is none is found
+        Searches for a given command in all package.jsons, or False is none are found
         """
+        packages = []
+        
         if self.active:
-            file = open('package.json', 'r') 
-            with file as f:
-                for line in f:
-                    if re.search(regex, line):
-                        command = re.search("(?<=:).+$", line)
-                        return command.group(0)
-                    
-                return False
+            for dir in self.packages:
+                os.chdir(dir)
+                file = open('package.json', 'r') 
+                
+                with file as f:
+                    for line in f:
+                        if re.search(regex, line):
+                            command = re.search("(?<=:).+$", line)
+                            packages.append(command.group(0))
+                        
+                    return packages
         else:
             return False
     
