@@ -9,6 +9,7 @@ class TypeScriptHunter:
         self.extensions = {}
         self.paths = []
         self.files = []
+        self.transpilations = []
         
         for root, dirs, files in os.walk(path):
             if re.search('node_modules', root) == None:
@@ -46,4 +47,6 @@ class TypeScriptHunter:
                 for k, v in data.iteritems():
                     if k == 'files':
                         self.files = v
-                            
+                    elif k == 'compilerOptions':
+                        if v['target'] == 'ES6':
+                            self.transpilations.append(v['target'])
