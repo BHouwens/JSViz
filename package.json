@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "karma start tests/karma.conf.js --browsers PhantomJS_custom",
-    "start":"node app.js"
+    "start":"webpack-dev-server"
   },
   "devDependencies": {
     "jasmine-core": "^2.3.4",

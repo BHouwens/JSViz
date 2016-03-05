@@ -4,7 +4,7 @@ import fnmatch
 
 class NPMHunter:
     def __init__(self, path):
-        self.packages = [] # how many entry points for npm are there?
+        self.packages = [] # how many package.jsons are there? this holds their paths
         self.active = False
         
         for root, dirs, files in os.walk(path):

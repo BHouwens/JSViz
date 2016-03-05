@@ -1,6 +1,5 @@
 from flask import Flask, render_template
-from services.controller import Controller
-from services.npm import NPMHunter
+from services.languages.typescript import TypeScriptHunter
 
 import os
 
@@ -9,10 +8,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    root = NPMHunter(os.getcwd())
-    start = root.find_start()
-    print start
-    return render_template('index.html', start = '')
+    t = TypeScriptHunter('/Users/byronhouwens/ABGlobal/ksys336')
+    t.crawl_tsd()
+    print t.extensions
+    return render_template('index.html', task_runners = '')
         
 if __name__ == '__main__':
     app.run(debug=True)
