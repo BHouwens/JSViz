@@ -12,7 +12,6 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     t = WebpackHandler('/Users/byronhouwens/ABGlobal/ksys336')
-    t.hunt_entries()
     
     return render_template('index.html', task_runners = '')
         

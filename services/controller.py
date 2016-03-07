@@ -1,5 +1,6 @@
 import os, re
 from task_runners.npm import NPMHunter
+from task_runners.webpack import WebpackHandler
 
 class Controller:
     def __init__(self, path):

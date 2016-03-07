@@ -1,9 +1,15 @@
 import os, fnmatch, json, re
 
-class NPMHunter:
+class NpmHandler:
     def __init__(self, path):
-        self.packages = [] # how many package.jsons are there? this holds their paths
+        """
+        
+        Handles a single package.json file and its task runners, dependencies
+        and languages
+        
+        """
         self.active = False
+        self.path = path
         
         self.possible_task_runners = {
             'grunt' : "Gruntfile.js",
@@ -18,14 +24,11 @@ class NPMHunter:
             'elm'
         ]
         
-        for root, dirs, files in os.walk(path):
-            if re.search('node_modules', root) == None:
-                for name in files:
-                    if fnmatch.fnmatch(name, 'package.json'):
-                        self.packages.append(root)
-                        self.active = True
-                    
-        print 'self.packages: ' + str(self.packages)
+        os.chdir(self.path)
+        if os.path.isfile('package.json'):
+            self.active = True
+        else:
+            print 'There is no package.json in path ' + self.path
         
     def find_everything(self):
         """
@@ -36,41 +39,36 @@ class NPMHunter:
         self.find_languages()
         
     def find_languages(self):
-        self.dep_languages = {}
+        """
+        Finds all languages that this package.json allows you to use
+        """
+        self.languages = {}
         
         if self.active:
             current_lang = '' 
-            
-            for dir in self.packages:
-                os.chdir(dir)
-                file = open('package.json', 'r')
+            file = open('package.json', 'r')
                 
-                self.dep_languages[dir] = []
-                
-                with file as f:
-                    json_data = f.read().decode('utf-8')
-                    data = json.loads(json_data)
+            with file as f:
+                json_data = f.read().decode('utf-8')
+                data = json.loads(json_data)
                     
-                    if 'devDependencies' in data:
-                        for devDep in data['devDependencies'].iterkeys():
-                            for language in self.possible_languages:
-                                if language in devDep and language != current_lang:
-                                    self.dep_languages[dir].append(language) 
-                                    current_lang = language
+                if 'devDependencies' in data:
+                    for devDep in data['devDependencies'].iterkeys():
+                        for language in self.possible_languages:
+                            if language in devDep and language != current_lang:
+                                self.languages[dir].append(language) 
+                                current_lang = language
                     
-                    if 'dependencies' in data:            
-                        for dep in data['dependencies'].iterkeys():
-                            for language in self.possible_languages:
-                                if language in dep and language != current_lang:
-                                    self.dep_languages[dir].append(language) 
-                                    current_lang = language
-                                    
-                current_lang = ''
-             
+                if 'dependencies' in data:            
+                    for dep in data['dependencies'].iterkeys():
+                        for language in self.possible_languages:
+                            if language in dep and language != current_lang:
+                                self.languages[dir].append(language) 
+                                current_lang = language
         
     def find_task_runners(self):
         """
-        Will find task runners in all package.jsons
+        Will find task runner/s in this package.json
         """
         self.dep_task_runners = {}
         
