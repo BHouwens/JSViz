@@ -16,14 +16,13 @@ class Controller:
         """
         self.path = path
         self.task_runners = []
-        self.npm = NpmHandler(self.path)
+        self.npm = NpmHandler(path)
         
         # do preliminary search through package.jsons
         # this will cut down work later
         if self.npm.active:
             self.npm.find_everything()
             self.actual_task_runners()
-            print 'actual task runners: ' + str(self.task_runners)
             
     def find_init_files(self):
         self.npm.set_starts()

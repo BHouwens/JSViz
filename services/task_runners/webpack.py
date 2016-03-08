@@ -21,7 +21,6 @@ class WebpackHandler:
         lines = []
         entry_found = False
         
-        os.chdir(self.path)
         if os.path.isfile('webpack.config.js'):
             file = open('webpack.config.js', 'r')
             

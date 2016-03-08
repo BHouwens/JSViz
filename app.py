@@ -1,7 +1,6 @@
-import os
-
 from flask import Flask, jsonify
 from services.controller import Controller
+from utils.path import path_handler
 
 app = Flask(__name__)
 path = '/Users/byronhouwens/ABGlobal/ksys336'
@@ -9,9 +8,7 @@ ctrl = Controller(path)
 
 @app.route('/')
 def home():
-    stats = {
-        'path' : path
-    }
+    stats = {'path' : path_handler(path)}
     
     return jsonify(stats)
  

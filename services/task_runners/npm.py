@@ -25,8 +25,7 @@ class NpmHandler:
             'babel'
         ]
         
-        os.chdir(self.path)
-        if os.path.isfile('package.json'):
+        if os.path.isfile(self.path + '/package.json'):
             self.active = True
         else:
             print 'There is no package.json in path ' + self.path
@@ -47,8 +46,7 @@ class NpmHandler:
         
         if self.active:
             current_lang = '' 
-            os.chdir(self.path)
-            file = open('package.json', 'r')
+            file = open(self.path + '/package.json', 'r')
                 
             with file as f:
                 json_data = f.read().decode('utf-8')
@@ -76,8 +74,7 @@ class NpmHandler:
         
         if self.active:
             current_runner = ''
-            os.chdir(self.path)
-            file = open('package.json', 'r')
+            file = open(self.path + '/package.json', 'r')
                 
             with file as f:
                 json_data = f.read().decode('utf-8')
