@@ -48,5 +48,7 @@ class TypeScriptHunter:
                     if k == 'files':
                         self.files = v
                     elif k == 'compilerOptions':
-                        if v['target'] == 'ES6':
-                            self.transpilations.append(v['target'])
+                        # handle conversion to ES6
+                        if v['target'] is not None: 
+                            if v['target'] == 'ES6' or v['target'] == 'ES2015':
+                                self.transpilations.append(v['target'])

@@ -21,7 +21,8 @@ class NpmHandler:
         
         self.possible_languages = [
             'typescript',
-            'elm'
+            'elm',
+            'babel'
         ]
         
         os.chdir(self.path)
@@ -42,10 +43,11 @@ class NpmHandler:
         """
         Finds all languages that this package.json allows you to use
         """
-        self.languages = {}
+        self.languages = []
         
         if self.active:
             current_lang = '' 
+            os.chdir(self.path)
             file = open('package.json', 'r')
                 
             with file as f:
@@ -56,48 +58,44 @@ class NpmHandler:
                     for devDep in data['devDependencies'].iterkeys():
                         for language in self.possible_languages:
                             if language in devDep and language != current_lang:
-                                self.languages[dir].append(language) 
+                                self.languages.append(language) 
                                 current_lang = language
                     
                 if 'dependencies' in data:            
                     for dep in data['dependencies'].iterkeys():
                         for language in self.possible_languages:
                             if language in dep and language != current_lang:
-                                self.languages[dir].append(language) 
+                                self.languages.append(language) 
                                 current_lang = language
         
     def find_task_runners(self):
         """
         Will find task runner/s in this package.json
         """
-        self.dep_task_runners = {}
+        self.task_runners = []
         
         if self.active:
             current_runner = ''
-            
-            for dir in self.packages:
-                os.chdir(dir)
-                file = open('package.json', 'r')
+            os.chdir(self.path)
+            file = open('package.json', 'r')
                 
-                self.dep_task_runners[dir] = []
-                
-                with file as f:
-                    json_data = f.read().decode('utf-8')
-                    data = json.loads(json_data)
+            with file as f:
+                json_data = f.read().decode('utf-8')
+                data = json.loads(json_data)
                     
-                    if 'devDependencies' in data:
-                        for devDep in data['devDependencies'].iterkeys():
-                            for runner, lookup in self.possible_task_runners.iteritems():
-                                if runner in devDep and runner != current_runner:
-                                    self.dep_task_runners[dir].append({runner: lookup}) 
-                                    current_runner = runner
+                if 'devDependencies' in data:
+                    for devDep in data['devDependencies'].iterkeys():
+                        for runner, lookup in self.possible_task_runners.iteritems():
+                            if runner in devDep and runner != current_runner:
+                                self.task_runners.append({runner: lookup}) 
+                                current_runner = runner
                     
-                    if 'dependencies' in data:                                
-                        for dep in data['dependencies'].iterkeys():
-                            for runner, lookup in self.possible_task_runners.iteritems():
-                                if runner in dep and runner != current_runner:
-                                    self.dep_task_runners[dir].append({runner: lookup})  
-                                    current_runner = runner
+                if 'dependencies' in data:                                
+                   for dep in data['dependencies'].iterkeys():
+                        for runner, lookup in self.possible_task_runners.iteritems():
+                            if runner in dep and runner != current_runner:
+                                self.task_runners.append({runner: lookup})  
+                                current_runner = runner
                                     
                 current_runner = ''
             
@@ -140,20 +138,3 @@ class NpmHandler:
         """
         self.starts = self.find_command('start')
         
-    def set_devs(self):
-        """
-        Sets all dev commands for this class instance
-        """
-        self.devs = self.find_command('dev')
-            
-    def find_build(self):
-        """
-        Returns the npm build command, or False if none exist
-        """
-        return self.find_command('build')
-        
-    def find_test(self):
-        """
-        Returns the npm test command, or False if none exist
-        """
-        return self.find_command('test')
