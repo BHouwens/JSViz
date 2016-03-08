@@ -11,6 +11,10 @@ def home():
     stats = {'path' : path_handler(path)}
     
     return jsonify(stats)
+    
+@app.route('/handlers')
+def handlers():
+    return jsonify({'handlers': ctrl.handlers})
  
 @app.route('/task-runners')
 def task_runners():

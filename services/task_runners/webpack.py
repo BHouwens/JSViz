@@ -21,8 +21,8 @@ class WebpackHandler:
         lines = []
         entry_found = False
         
-        if os.path.isfile('webpack.config.js'):
-            file = open('webpack.config.js', 'r')
+        if os.path.isfile(self.path + '/webpack.config.js'):
+            file = open(self.path + '/webpack.config.js', 'r')
             
             with file as f:
                 to_continue = False
@@ -76,32 +76,31 @@ class WebpackHandler:
         entries = self.set_entries()
         
         for root, dirs, files in os.walk(self.path):
-            for name in files:
-                for entry in entries:
-                    if len(entry) > 1:
-                        last_dir = entry[-2]
+            if 'node_modules' not in root:
+                for name in files:
+                    for entry in entries:
+                        if len(entry) > 1:
+                            last_dir = entry[-2]
+                            
+                            # checks that file is in correct dir
+                            # by ensuring the last bit of the root == last
+                            # bit of the entry's path
+                            if last_dir in root[-len(last_dir):]:
+                                if entry[-1] in name:
+                                    new_obj = {
+                                        'path': root,
+                                        'file': name
+                                    }
+                                            
+                                    self.child_files.append(new_obj)
                         
-                        # checks that file is in correct dir
-                        # by ensuring the last bit of the root == last
-                        # bit of the entry's path
-                        if last_dir in root[-len(last_dir):]:
+                        else:
                             if entry[-1] in name:
                                 new_obj = {
                                     'path': root,
                                     'file': name
                                 }
-                                        
-                                self.child_files.append(new_obj)
-                    
-                    else:
-                        if entry[-1] in name:
-                            new_obj = {
-                                'path': root,
-                                'file': name
-                            }
-                            
-                            self.child_files.append(new_obj)
                                 
-        print self.child_files
+                                self.child_files.append(new_obj)
                             
                         

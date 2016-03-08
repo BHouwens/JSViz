@@ -16,6 +16,7 @@ class Controller:
         """
         self.path = path
         self.task_runners = []
+        self.handlers = []
         self.npm = NpmHandler(path)
         
         # do preliminary search through package.jsons
@@ -23,15 +24,22 @@ class Controller:
         if self.npm.active:
             self.npm.find_everything()
             self.actual_task_runners()
-            
-    def find_init_files(self):
-        self.npm.set_starts()
+            self.handle_task_runner(0)
+
+    def handle_task_runner(self, id):
+        """
+        Handles task runners and their child files appropriately
+        """
+        handler_entry = {
+            'path' : self.path
+        }
         
-        if len(self.npm.starts) == 0:
-            self.npm.set_devs()
-            print 'devs: ' + str(self.npm.devs)   
-        else:
-            print 'starts: ' + str(self.npm.starts)
+        if self.task_runners[id]['runner'] == 'webpack':
+            handler = WebpackHandler(self.path)
+            handler_entry['parent'] = 'webpack.config.js'
+            handler_entry['children'] = handler.child_files
+            
+        self.handlers.append(handler_entry)
         
     def actual_task_runners(self):
         """
