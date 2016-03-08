@@ -1,10 +1,7 @@
-#!flask/bin/python
+import os
 
 from flask import Flask, jsonify
 from services.controller import Controller
-
-import os
-
 
 app = Flask(__name__)
 path = '/Users/byronhouwens/ABGlobal/ksys336'
