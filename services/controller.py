@@ -2,6 +2,7 @@ import os, re
 
 from task_runners.npm import NpmHandler
 from task_runners.webpack import WebpackHandler
+from rel_manager import RelationshipManager
 
 class Controller:
     def __init__(self, path):
@@ -25,10 +26,24 @@ class Controller:
             self.npm.find_everything()
             self.actual_task_runners()
             self.handle_task_runner(0)
+            self.get_dependencies()
 
     def handle_task_runner(self, id):
         """
         Handles task runners and their child files appropriately
+        
+        Creates list with dicts of structure:
+        
+            {
+                'children': [
+                    {
+                        'file': filename,
+                        'path': full/path/to/file
+                    }
+                ],
+                'parent': task runner file
+                'path': path to task runner file
+            }    
         """
         handler_entry = {
             'path' : self.path
@@ -58,5 +73,9 @@ class Controller:
                                         'runner': runner,
                                         'file': main_file
                                     })
-                                
+    
+    def get_dependencies(self):
+        relationship = RelationshipManager(self.handlers)
+        
+        
                 
