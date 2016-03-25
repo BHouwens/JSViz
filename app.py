@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from services.controller import Controller
 from utils.path import path_handler
 
@@ -8,9 +8,7 @@ ctrl = Controller(path)
 
 @app.route('/')
 def home():
-    stats = {'path' : path_handler(path)}
-    
-    return jsonify(stats)
+    return render_template('index.html')
     
 @app.route('/handlers')
 def handlers():
@@ -19,6 +17,10 @@ def handlers():
 @app.route('/task-runners')
 def task_runners():
     return jsonify({'task_runners': ctrl.task_runners})
+    
+@app.route('/d3')
+def d3():
+    return jsonify({'nodes': ctrl.nodes, 'links': ctrl.links})
       
 if __name__ == '__main__':
     app.run(debug=True)

@@ -20,15 +20,20 @@ class Controller:
         self.handlers = []
         self.npm = NpmHandler(path)
         
+        # D3 vars
+        self.nodes = []
+        self.links = []
+        self.id = 0
+        
         # do preliminary search through package.jsons
         # this will cut down work later
         if self.npm.active:
             self.npm.find_everything()
             self.actual_task_runners()
-            self.handle_task_runner(0)
-            self.get_dependencies()
+            self.handle_task_runner()
+            self.munge_data()
 
-    def handle_task_runner(self, id):
+    def handle_task_runner(self):
         """
         Handles task runners and their child files appropriately
         
@@ -49,12 +54,13 @@ class Controller:
             'path' : self.path
         }
         
-        if self.task_runners[id]['runner'] == 'webpack':
-            handler = WebpackHandler(self.path)
-            handler_entry['parent'] = 'webpack.config.js'
-            handler_entry['children'] = handler.child_files
+        for entry in self.task_runners:
+            if entry['runner'] == 'webpack':
+                handler = WebpackHandler(self.path)
+                handler_entry['parent'] = 'webpack.config.js'
+                handler_entry['children'] = handler.child_files
             
-        self.handlers.append(handler_entry)
+                self.handlers.append(handler_entry)
         
     def actual_task_runners(self):
         """
@@ -73,9 +79,17 @@ class Controller:
                                         'runner': runner,
                                         'file': main_file
                                     })
-    
-    def get_dependencies(self):
-        relationship = RelationshipManager(self.handlers)
         
-        
+    def munge_data(self):
+        for entry in self.handlers:
+            node = {'file': entry['parent'], 'id': self.id, 'class': 'handler'}
+            self.nodes.append({'file': node['file']})
+            
+            for child_file in entry['children']:
+                self.id += 1
+                self.nodes.append({'file': child_file['file'], 'class': 'dependency'})
+                self.links.append({'source': node['id'], 'target': self.id})
                 
+              
+            
+              
