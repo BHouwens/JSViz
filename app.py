@@ -3,7 +3,7 @@ from services.controller import Controller
 from utils.path import path_handler
 
 app = Flask(__name__)
-path = '/Users/byronhouwens/ABGlobal/ksys336'
+path = '/Users/byronhouwens/ksys326'
 ctrl = Controller(path)
 
 @app.route('/')

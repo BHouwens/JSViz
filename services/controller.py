@@ -82,8 +82,8 @@ class Controller:
         
     def munge_data(self):
         for entry in self.handlers:
-            node = {'file': entry['parent'], 'id': self.id, 'class': 'handler'}
-            self.nodes.append({'file': node['file']})
+            node = {'file': entry['parent'], 'id': self.id}
+            self.nodes.append({'file': node['file'], 'class': 'handler'})
             
             for child_file in entry['children']:
                 self.id += 1
