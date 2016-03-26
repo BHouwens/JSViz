@@ -1,8 +1,8 @@
-import os, re
+import os
+import re
 
 from task_runners.npm import NpmHandler
 from task_runners.webpack import WebpackHandler
-from rel_manager import RelationshipManager
 
 class Controller:
     def __init__(self, path):

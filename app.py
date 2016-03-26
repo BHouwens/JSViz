@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template
 from services.controller import Controller
-from utils.path import path_handler
+from services.networker import Networker
 
 app = Flask(__name__)
 path = '/Users/byronhouwens/ksys326'
@@ -17,6 +17,20 @@ def handlers():
 @app.route('/task-runners')
 def task_runners():
     return jsonify({'task_runners': ctrl.task_runners})
+    
+@app.route('/network')
+def network():
+    n = Networker(path, ['*.ts', '*.js'])
+    n.find_dependents()
+    
+    return jsonify({'network': n.files})
+    
+@app.route('/links')
+def links():
+    n = Networker(path, ['*.ts', '*.js'])
+    n.find_dependents()
+    
+    return jsonify({'links': n.links})
     
 @app.route('/d3')
 def d3():

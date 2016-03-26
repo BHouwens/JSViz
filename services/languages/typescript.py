@@ -1,4 +1,7 @@
-import os, fnmatch, json, re
+import os
+import fnmatch
+import json 
+import re
 
 class TypeScriptHunter:
     def __init__(self, path):
