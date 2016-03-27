@@ -1,11 +1,11 @@
 export function drawChart(nodeData, linkData) {
-    let width = 700,
+    let width = 900,
         height = 700;
 
     let force = d3.layout.force()
         .size([width, height])
-        .charge(-120)
-        .linkDistance(30);
+        .charge(-250)
+        .linkDistance(50);
 
     let svg = d3.select('body').append('svg')
         .attr('width', width)

@@ -9920,10 +9920,10 @@
 	});
 	exports.drawChart = drawChart;
 	function drawChart(nodeData, linkData) {
-	    var width = 700,
+	    var width = 900,
 	        height = 700;
 	
-	    var force = d3.layout.force().size([width, height]).charge(-120).linkDistance(30);
+	    var force = d3.layout.force().size([width, height]).charge(-250).linkDistance(50);
 	
 	    var svg = d3.select('body').append('svg').attr('width', width).attr('height', height).append('g');
 	

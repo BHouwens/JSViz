@@ -1,6 +1,7 @@
 import os
 import re
 import fnmatch
+from js_import import check as js_condition
 
 class Networker:
     def __init__(self, path, extensions):
@@ -13,6 +14,7 @@ class Networker:
         self.links = []
         
         self.path = path
+        self.condition = js_condition
         self.extensions = extensions
         self.id = 0
         self.check_templates = False
@@ -68,7 +70,7 @@ class Networker:
              
             with entry as f:
                 for line in entry:
-                    if 'import' in line or 'require' in line:
+                    if self.condition(line):
                         file['imports'].append(self.rip_import(line))
                         
                     if self.check_templates:
@@ -108,6 +110,7 @@ class Networker:
         if len(indices) > 0:
             imported = imported[1:indices[-1]]
             
+        imported = imported.replace('.','')
         return imported in path
         
         
