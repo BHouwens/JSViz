@@ -52,7 +52,7 @@ class Networker:
             for neighbour in self.files:
                 for imports in neighbour['imports']:
                     if imports is not None:
-                        if self.name_match(name, imports) and self.path_match(file['path'], imports):
+                        if imports['path'] == file['path'] and imports['file'] in file['name']:
                             file['dependents'].append(neighbour['name'])
                             self.links.append({'source': file['id'], 'target': neighbour['id']})
                 
@@ -63,6 +63,7 @@ class Networker:
         """
         
         self.build_file_list()
+        char_list = ['\'', '\"']
         
         for file in self.files:
             entry = open(os.path.join(file['path'], file['name']), 'r')
@@ -71,47 +72,59 @@ class Networker:
             with entry as f:
                 for line in entry:
                     if self.condition(line):
-                        file['imports'].append(self.rip_import(line))
+                        file['imports'].append(self.rip_import(char_list, line, file['path']))
                         
                     if self.check_templates:
                         if 'src=' in line:
                             files['imports'].append(self.rip_import(line))
                         
-    def rip_import(self, line):
+    def rip_import(self, char_list, line, path):
         """
         Rips the imported dependencies from a line
         """
         
-        if '\'' in line:
-            indices = [i for i, char in enumerate(line) if char == '\'']
-            return line[indices[-2] + 1: indices[-1]]
-        elif '\"' in line:
-            indices = [i for i, char in enumerate(line) if char == '\"']
-            return line[indices[-2] + 1: indices[-1]]
-
-
-    def name_match(self, name, imported):
-        """
-        Performs a greedy match between a file and its potential import's name
-        """
-        
-        dot_indices = [i for i, char in enumerate(name) if char == '.']
-        searchable_name = name[:dot_indices[-1]]
-        
-        return searchable_name in imported
-        
-        
-    def path_match(self, path, imported):
-        """
-        Performs a greedy match between a file and its potential import's path
-        """
-        
-        indices = [i for i, char in enumerate(imported) if char == '/']
-        if len(indices) > 0:
-            imported = imported[1:indices[-1]]
+        for char in char_list:
+            if char in line:
+                indices = [i for i, c in enumerate(line) if c == char]
+                actual_import = line[indices[-2] + 1: indices[-1]]
+                
+                return self.determine_file(line, actual_import, path)
             
-        imported = imported.replace('.','')
-        return imported in path
+            
+    def determine_file(self, line, actual_import, path):
+        """
+        Determines the path and actual file of the import
+        """
+    
+        if '/' in actual_import:
+            indices = [i for i, char in enumerate(actual_import) if char == '/']
+            import_file = actual_import[indices[-1] + 1:]
+            import_path = actual_import[:indices[-1]]
+            
+            if actual_import[:2] == './':
+                return {
+                    'path': '/'.join([ path, actual_import[2:indices[-1]] ]),
+                    'file': import_file
+                }
+            
+            if actual_import[:2] == '..':
+                jump_ups = len(re.findall('\.\.', actual_import))
+                path = path.split('/')
+                
+                for i in range(jump_ups):
+                    del path[-1]
+                    import_path = import_path[3:]
+                    
+                return {
+                    'path': '/'.join(['/'.join(path), import_path]),
+                    'file': import_file
+                }
+        
+        else:
+            return {
+                'path': path,
+                'file': actual_import
+            }
         
         
     def check_for_templates(self):
