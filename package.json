@@ -1,8 +1,14 @@
 {
   "name": "jsviz",
   "version": "0.1.0",
+  "scripts": {
+    "build": "webpack",
+    "start": "npm run build && python app.py"
+  },
   "devDependencies": {},
   "dependencies": {
+    "d3": "^3.5.16",
+    "jquery": "^2.2.2",
     "npm-dev-boilerplate": "^1.0.2"
   }
 }

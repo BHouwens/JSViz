@@ -23,14 +23,7 @@ def network():
     n = Networker(path, ['*.ts', '*.js'])
     n.find_dependents()
     
-    return jsonify({'network': n.files})
-    
-@app.route('/links')
-def links():
-    n = Networker(path, ['*.ts', '*.js'])
-    n.find_dependents()
-    
-    return jsonify({'links': n.links})
+    return jsonify({'files': n.files, 'links': n.links})
     
 @app.route('/d3')
 def d3():
