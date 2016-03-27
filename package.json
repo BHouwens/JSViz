@@ -9,6 +9,7 @@
   "dependencies": {
     "d3": "^3.5.16",
     "jquery": "^2.2.2",
+    "node-sass": "^3.4.2",
     "npm-dev-boilerplate": "^1.0.2"
   }
 }

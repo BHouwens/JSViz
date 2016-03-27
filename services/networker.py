@@ -14,7 +14,7 @@ class Networker:
         
         self.path = path
         self.extensions = extensions
-        self.id = 1
+        self.id = 0
         self.check_templates = False
         
     def build_file_list(self):

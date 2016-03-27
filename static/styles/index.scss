@@ -1,0 +1,29 @@
+circle{
+    fill: #fff;
+    stroke: red;
+    transition: 0.3s;
+    stroke-width: 1.5px;
+    cursor: pointer;
+    
+    & ~ text{
+        transition: 0.3s;
+        fill: none;
+        stroke-width: 0;
+        font: 10px sans-serif;
+    }
+    
+    &:hover{
+        r: 7px;
+        stroke-width: 2.5px;
+        
+        & ~ text{
+            fill: black;
+        }
+    }
+}
+
+line {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}

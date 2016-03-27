@@ -3,7 +3,7 @@ from services.controller import Controller
 from services.networker import Networker
 
 app = Flask(__name__)
-path = '/Users/byronhouwens/ksys326'
+path = '/Users/byronhouwens/ksys326/client'
 ctrl = Controller(path)
 
 @app.route('/')
