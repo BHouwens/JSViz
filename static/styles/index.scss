@@ -20,6 +20,23 @@ circle{
             fill: black;
         }
     }
+    
+    /* Extensions */
+    &.ts{
+        stroke: #66ccf0;
+    }
+    
+    &.tsx{
+        stroke: darken(#66ccf0, 40%);
+    }
+    
+    &.js{
+        stroke: orange;
+    }
+    
+    &.jsx{
+        stroke: darken(orange, 40%);
+    }
 }
 
 line {

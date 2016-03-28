@@ -9920,8 +9920,8 @@
 	});
 	exports.drawChart = drawChart;
 	function drawChart(nodeData, linkData) {
-	    var width = 900,
-	        height = 700;
+	    var width = 1200,
+	        height = 1500;
 	
 	    var force = d3.layout.force().size([width, height]).charge(-250).linkDistance(50);
 	
@@ -9936,10 +9936,30 @@
 	
 	    var node = svg.selectAll('.node').data(nodes).enter().append('g').attr('class', 'node').call(force.drag);
 	
-	    node.append('circle').attr('class', 'node').attr('r', 5);
+	    node.append('circle').attr('class', function (d) {
+	        return d.class;
+	    }).attr('r', 5);
 	
 	    node.append("text").attr("dx", 12).attr("dy", ".35em").text(function (d) {
 	        return d.name;
+	    });
+	
+	    node.on('mouseover', function (n) {
+	        link.style('stroke-width', function (l) {
+	            if (n === l.source || n === l.target) return 2;else return 1.5;
+	        }).style('stroke', function (l) {
+	            if (n === l.source) {
+	                return '#7ec042';
+	            } else if (n === l.target) {
+	                return '#e14a49';
+	            }
+	            return '#ccc';
+	        });
+	    });
+	
+	    // Set the stroke width back to normal when mouse leaves the node.
+	    node.on('mouseout', function () {
+	        link.style('stroke-width', 1.5).style('stroke', '#ccc');
 	    });
 	
 	    force.on('tick', function () {
@@ -19564,7 +19584,7 @@
 	
 	
 	// module
-	exports.push([module.id, "circle {\n  fill: #fff;\n  stroke: red;\n  transition: 0.3s;\n  stroke-width: 1.5px;\n  cursor: pointer; }\n  circle ~ text {\n    transition: 0.3s;\n    fill: none;\n    stroke-width: 0;\n    font: 10px sans-serif; }\n  circle:hover {\n    r: 7px;\n    stroke-width: 2.5px; }\n    circle:hover ~ text {\n      fill: black; }\n\nline {\n  fill: none;\n  stroke: #ccc;\n  stroke-width: 1.5px; }\n", ""]);
+	exports.push([module.id, "circle {\n  fill: #fff;\n  stroke: red;\n  transition: 0.3s;\n  stroke-width: 1.5px;\n  cursor: pointer;\n  /* Extensions */ }\n  circle ~ text {\n    transition: 0.3s;\n    fill: none;\n    stroke-width: 0;\n    font: 10px sans-serif; }\n  circle:hover {\n    r: 7px;\n    stroke-width: 2.5px; }\n    circle:hover ~ text {\n      fill: black; }\n  circle.ts {\n    stroke: #66ccf0; }\n  circle.tsx {\n    stroke: #0c607e; }\n  circle.js {\n    stroke: orange; }\n  circle.jsx {\n    stroke: #332100; }\n\nline {\n  fill: none;\n  stroke: #ccc;\n  stroke-width: 1.5px; }\n", ""]);
 	
 	// exports
 

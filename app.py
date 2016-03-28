@@ -3,7 +3,7 @@ from services.controller import Controller
 from services.networker import Networker
 
 app = Flask(__name__)
-path = '/Users/byronhouwens/ksys326/client'
+path = '/Users/byronhouwens/csam/ksys328/client'
 ctrl = Controller(path)
 
 @app.route('/')
@@ -20,7 +20,7 @@ def task_runners():
     
 @app.route('/network')
 def network():
-    n = Networker(path, ['*.ts', '*.js', '*.tsx'])
+    n = Networker(path, ['*.ts', '*.js', '*.tsx', '*.html'])
     n.find_dependents()
     
     return jsonify({'files': n.files, 'links': n.links})

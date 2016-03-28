@@ -29,10 +29,13 @@ class Networker:
                 for name in files:
                     for extension in self.extensions:
                         if fnmatch.fnmatch(name, extension):
+                            extension_class = extension.replace('*.', '')
+                            
                             self.files.append({
                                 'name': name,
                                 'path': root,
-                                'id': self.id
+                                'id': self.id,
+                                'class': extension_class
                             })
                             
                             self.id += 1
@@ -52,10 +55,22 @@ class Networker:
             for neighbour in self.files:
                 for imports in neighbour['imports']:
                     if imports is not None:
-                        if imports['path'] == file['path'] and imports['file'] in file['name']:
-                            file['dependents'].append(neighbour['name'])
-                            self.links.append({'source': file['id'], 'target': neighbour['id']})
-                
+                        if imports['path'][-1] == '/':   
+                            double_slash = True
+                        else:
+                            double_slash = False
+                            
+                        path_to_check = self.path_joins(imports['path'], file['name'], double_slash)
+                        
+                        # if it's a file
+                        if os.path.exists(path_to_check):
+                            if imports['path'] == file['path'] and imports['file'] in file['name']:
+                                file['dependents'].append(neighbour['name'])
+                                self.links.append({'source': file['id'], 'target': neighbour['id']})
+                                
+                        # if it's a folder
+                        
+                        
     
     def find_imports(self):
         """
@@ -63,6 +78,8 @@ class Networker:
         """
         
         self.build_file_list()
+        self.check_for_templates()
+        
         char_list = ['\'', '\"']
         
         for file in self.files:
@@ -76,7 +93,7 @@ class Networker:
                         
                     if self.check_templates:
                         if 'src=' in line:
-                            files['imports'].append(self.rip_import(line))
+                            file['imports'].append(self.rip_import(char_list, line, file['path']))
                         
     def rip_import(self, char_list, line, path):
         """
@@ -104,7 +121,8 @@ class Networker:
             if actual_import[:2] == './':
                 return {
                     'path': '/'.join([ path, actual_import[2:indices[-1]] ]),
-                    'file': import_file
+                    'file': import_file,
+                    'line': line
                 }
             
             if actual_import[:2] == '..':
@@ -117,13 +135,15 @@ class Networker:
                     
                 return {
                     'path': '/'.join(['/'.join(path), import_path]),
-                    'file': import_file
+                    'file': import_file,
+                    'line': line
                 }
         
         else:
             return {
                 'path': path,
-                'file': actual_import
+                'file': actual_import,
+                'line': line
             }
         
         
@@ -138,3 +158,24 @@ class Networker:
             if extension in self.extensions:
                 self.check_templates = True
                 break
+                
+    def get_import(self, line):
+        """
+        Get imported function/variable from line
+        """
+        
+        if len(re.findall('{', line)) > 0:
+            opening = line.index('{')
+            closing = line.index('}')
+            
+            return line[opening + 1:closing]
+                
+    def path_joins(self, first_join, second_join, condition=True):
+        """
+        Will determine kind of join based on condition
+        """
+        
+        if condition:
+            return ''.join([ first_join, second_join ])
+        else:
+            return '/'.join([ first_join, second_join ])
