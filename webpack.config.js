@@ -2,6 +2,8 @@
 
 var autoprefixer = require('autoprefixer'),
     rucksack = require('rucksack-css'),
+    nesting = require('postcss-nested'),
+    colourFunctions = require('postcss-colour-functions'),
     mqPacker = require('css-mqpacker'); 
 
 /*----------- Server modules --------------*/
@@ -25,7 +27,7 @@ var config = {
     devtool: 'source-map',
     module: {
         loaders: [
-            { test: /\.scss$/, loaders: ["style", "css", "postcss-loader", "sass"], include: path.resolve(rootDir, "styles") },
+            { test: /\.css$/, loaders: ["style", "css", "postcss-loader"], include: path.resolve(rootDir, "styles") },
             { test: /\.js$/, loader: "babel-loader", include: path.resolve(rootDir, "src"), 
               query: {
                    presets: ['es2015']
@@ -45,6 +47,8 @@ var config = {
     postcss: function () {
         return [autoprefixer({ browsers: ['last 2 versions']}),
                 rucksack({ fallbacks: true }),
+                nesting({ bubble: ['phone'] }),
+                colourFunctions,
                 mqPacker];
     }
 };

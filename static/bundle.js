@@ -55,8 +55,6 @@
 	    dataType: 'json',
 	    url: "http://localhost:5000/network"
 	}).success(function (d) {
-	    console.log(d);
-	
 	    (0, _chart.drawChart)(d.files, d.links);
 	});
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
@@ -66,7 +64,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * jQuery JavaScript Library v2.2.2
+	 * jQuery JavaScript Library v2.2.3
 	 * http://jquery.com/
 	 *
 	 * Includes Sizzle.js
@@ -76,7 +74,7 @@
 	 * Released under the MIT license
 	 * http://jquery.org/license
 	 *
-	 * Date: 2016-03-17T17:51Z
+	 * Date: 2016-04-05T19:26Z
 	 */
 	
 	(function( global, factory ) {
@@ -132,7 +130,7 @@
 	
 	
 	var
-		version = "2.2.2",
+		version = "2.2.3",
 	
 		// Define a local copy of jQuery
 		jQuery = function( selector, context ) {
@@ -9542,7 +9540,7 @@
 			// If it fails, this function gets "jqXHR", "status", "error"
 			} ).always( callback && function( jqXHR, status ) {
 				self.each( function() {
-					callback.apply( self, response || [ jqXHR.responseText, status, jqXHR ] );
+					callback.apply( this, response || [ jqXHR.responseText, status, jqXHR ] );
 				} );
 			} );
 		}
@@ -9913,32 +9911,68 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(d3) {'use strict';
+	/* WEBPACK VAR INJECTION */(function($, d3) {'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	exports.drawChart = drawChart;
 	function drawChart(nodeData, linkData) {
-	    var width = 1200,
-	        height = 1500;
+	    var width = $(window).width(),
+	        height = $(window).height(),
+	        radius = 4;
 	
-	    var force = d3.layout.force().size([width, height]).charge(-250).linkDistance(50);
+	    var force = d3.layout.force().size([width, height]).gravity(0.06).linkDistance(30);
 	
 	    var svg = d3.select('body').append('svg').attr('width', width).attr('height', height).append('g');
 	
 	    var nodes = nodeData,
 	        links = linkData;
 	
-	    force.nodes(nodes).links(links).start();
+	    force.nodes(nodes).links(links).charge(function (node) {
+	        var satellites = 0;
+	
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
+	        try {
+	            for (var _iterator = linkData[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var entry = _step.value;
+	
+	                if (entry.source == node || entry.target == node) {
+	                    satellites++;
+	                }
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator.return) {
+	                    _iterator.return();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+	
+	        return satellites > 30 ? -500 : -50;
+	    }).start();
 	
 	    var link = svg.selectAll('.link').data(links).enter().insert('line').attr('class', 'link');
 	
 	    var node = svg.selectAll('.node').data(nodes).enter().append('g').attr('class', 'node').call(force.drag);
 	
 	    node.append('circle').attr('class', function (d) {
-	        return d.class;
-	    }).attr('r', 5);
+	        if (d.name == '__init__.py') {
+	            return d.class + ' init';
+	        } else {
+	            return d.class;
+	        }
+	    }).attr('r', radius);
 	
 	    node.append("text").attr("dx", 12).attr("dy", ".35em").text(function (d) {
 	        return d.name;
@@ -9949,11 +9983,11 @@
 	            if (n === l.source || n === l.target) return 2;else return 1.5;
 	        }).style('stroke', function (l) {
 	            if (n === l.source) {
-	                return '#7ec042';
+	                return '#14e87e';
 	            } else if (n === l.target) {
 	                return '#e14a49';
 	            }
-	            return '#ccc';
+	            return '#c1c1c1';
 	        });
 	    });
 	
@@ -9964,13 +9998,13 @@
 	
 	    force.on('tick', function () {
 	        node.attr('cx', function (d) {
-	            return d.x;
+	            return d.x = bindNodeToBox(d.x, radius, width);
 	        }).attr('title', function (d) {
 	            return d.name;
 	        }).attr('class', function () {
 	            return 'node';
 	        }).attr('cy', function (d) {
-	            return d.y;
+	            return d.y = bindNodeToBox(d.y, radius, height);
 	        });
 	
 	        link.attr('x1', function (d) {
@@ -9988,7 +10022,11 @@
 	        });
 	    });
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+	
+	function bindNodeToBox(value, radius, dimension) {
+	    return Math.max(radius, Math.min(dimension - radius, value));
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(3)))
 
 /***/ },
 /* 3 */
@@ -19565,8 +19603,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/postcss-loader/index.js!./../../node_modules/sass-loader/index.js!./index.scss", function() {
-				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/postcss-loader/index.js!./../../node_modules/sass-loader/index.js!./index.scss");
+			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/postcss-loader/index.js!./index.css", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/postcss-loader/index.js!./index.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -19584,7 +19622,7 @@
 	
 	
 	// module
-	exports.push([module.id, "circle {\n  fill: #fff;\n  stroke: red;\n  transition: 0.3s;\n  stroke-width: 1.5px;\n  cursor: pointer;\n  /* Extensions */ }\n  circle ~ text {\n    transition: 0.3s;\n    fill: none;\n    stroke-width: 0;\n    font: 10px sans-serif; }\n  circle:hover {\n    r: 7px;\n    stroke-width: 2.5px; }\n    circle:hover ~ text {\n      fill: black; }\n  circle.ts {\n    stroke: #66ccf0; }\n  circle.tsx {\n    stroke: #0c607e; }\n  circle.js {\n    stroke: orange; }\n  circle.jsx {\n    stroke: #332100; }\n\nline {\n  fill: none;\n  stroke: #ccc;\n  stroke-width: 1.5px; }\n", ""]);
+	exports.push([module.id, "body{\n    background: #3C4B5A;\n}\n\ncircle{\n    fill: #fff;\n    stroke: red;\n    transition: 0.3s;\n    stroke-width: 3px;\n    cursor: pointer;\n}\n\ncircle ~ text{\n    transition: 0.3s;\n    fill: none;\n    stroke-width: 0;\n    font: 10px sans-serif;\n}\n\ncircle:hover{\n    r: 7px;\n    stroke-width: 3.5px;\n}\n\ncircle:hover ~ text{\n    fill: white;\n}\n\n/* Extensions */\n\ncircle.py{\n    stroke: rgb(0,190,237);\n}\n\ncircle.init{\n    stroke: rgb(0,184,229);\n    r: 6.5px;\n}\n\ncircle.init:hover{\n    r: 8px;\n    stroke-width: 5px;\n}\n\nline {\n  fill: none;\n  stroke: #c1c1c1;\n  stroke-width: 1.5px;\n}", ""]);
 	
 	// exports
 

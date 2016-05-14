@@ -1,9 +1,6 @@
-# JSViz
+# PyViz
 
-Just a tool to visualise JavaScript (and all its various flavours) project structures. 
-
-The idea is to visualise the relationships between files, creating a network via their dependencies
-and dependents, as well as the task runners and such that kick a project off.
+Just a tool to visualise Python project structures. Really useful for larger projects
 
 ## Install
 
@@ -16,9 +13,6 @@ This will build Webpack and start the Flask app on port 5000
 
 ## Todo
 
-Too much:
-
-- Add support for more unusual import methods
-- Tie generic file networks to their task runners/`package.jsons`
-- Add support and detection for other flavours/languages of JS
-- Add support for virtually all task runners 
+- Add support for imports from a folder higher up the project tree
+- Add metadata to nodes to surface on UI (work external deps into this)
+- (?) Set up special styles for files like `setup.py` and requirements

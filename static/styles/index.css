@@ -1,8 +1,12 @@
+body{
+    background: #3C4B5A;
+}
+
 circle{
     fill: #fff;
     stroke: red;
     transition: 0.3s;
-    stroke-width: 1.5px;
+    stroke-width: 3px;
     cursor: pointer;
     
     & ~ text{
@@ -14,33 +18,31 @@ circle{
     
     &:hover{
         r: 7px;
-        stroke-width: 2.5px;
+        stroke-width: 3.5px;
         
         & ~ text{
-            fill: black;
+            fill: white;
         }
     }
     
     /* Extensions */
-    &.ts{
-        stroke: #66ccf0;
+    &.py{
+        stroke: darken(#00C8F9, 5%);
     }
     
-    &.tsx{
-        stroke: darken(#66ccf0, 40%);
-    }
-    
-    &.js{
-        stroke: orange;
-    }
-    
-    &.jsx{
-        stroke: darken(orange, 40%);
+    &.init{
+        stroke: darken(#00C8F9, 8%);
+        r: 6.5px;
+        
+        &:hover{
+            r: 8px;
+            stroke-width: 5px;
+        }
     }
 }
 
 line {
   fill: none;
-  stroke: #ccc;
+  stroke: #c1c1c1;
   stroke-width: 1.5px;
 }

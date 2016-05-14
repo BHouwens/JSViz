@@ -1,7 +1,9 @@
 import os
 import re
 import fnmatch
-from js_import import check as js_condition
+from py_import import PythonImportHandler
+
+import_handler = PythonImportHandler()
 
 class Networker:
     def __init__(self, path, extensions):
@@ -14,7 +16,6 @@ class Networker:
         self.links = []
         
         self.path = path
-        self.condition = js_condition
         self.extensions = extensions
         self.id = 0
         self.check_templates = False
@@ -25,7 +26,7 @@ class Networker:
         """
         
         for root, dirs, files in os.walk(self.path):
-            if re.search('node_modules', root) == None and re.search('dist', root) == None:
+            if re.search('venv', root) == None and re.search('node_modules', root) == None:
                 for name in files:
                     for extension in self.extensions:
                         if fnmatch.fnmatch(name, extension):
@@ -39,6 +40,24 @@ class Networker:
                             })
                             
                             self.id += 1
+                      
+    def find_imports(self):
+        """
+        Finds all imports for each file and adds to the list
+        """
+        
+        self.build_file_list()
+        self.check_for_templates()
+        
+        for file in self.files:
+            entry = open(os.path.join(file['path'], file['name']), 'r')
+            file['imports'] = []
+             
+            with entry as f:
+                for line in entry:
+                    possible_import = import_handler.find_import(line, file['path'], self.path)
+                    if possible_import:
+                        file['imports'].append(possible_import)
                             
     def find_dependents(self):
         """
@@ -55,97 +74,20 @@ class Networker:
             for neighbour in self.files:
                 for imports in neighbour['imports']:
                     if imports is not None:
-                        if imports['path'][-1] == '/':   
-                            double_slash = True
-                        else:
-                            double_slash = False
-                            
-                        path_to_check = self.path_joins(imports['path'], file['name'], double_slash)
-                        
-                        # if it's a file
-                        if os.path.exists(path_to_check):
-                            if imports['path'] == file['path'] and imports['file'] in file['name']:
-                                file['dependents'].append(neighbour['name'])
-                                self.links.append({'source': file['id'], 'target': neighbour['id']})
-                                
-                        # if it's a folder
-                        
-                        
-    
-    def find_imports(self):
-        """
-        Finds all imports for each file and adds to the list
-        """
+                        if imports['path'] == file['path'] and imports['file'] == file['name']:
+                            file['dependents'].append(neighbour['name'])
+                            self.links.append({'source': file['id'], 'target': neighbour['id']})
         
-        self.build_file_list()
-        self.check_for_templates()
-        
-        char_list = ['\'', '\"']
-        
-        for file in self.files:
-            entry = open(os.path.join(file['path'], file['name']), 'r')
-            file['imports'] = []
-             
-            with entry as f:
-                for line in entry:
-                    if self.condition(line):
-                        file['imports'].append(self.rip_import(char_list, line, file['path']))
-                        
-                    if self.check_templates:
-                        if 'src=' in line:
-                            file['imports'].append(self.rip_import(char_list, line, file['path']))
-                        
-    def rip_import(self, char_list, line, path):
+    def cull(self):
         """
-        Rips the imported dependencies from a line
+        Culls orphan and widow nodes if the number of nodes is very high.
+        This keeps the visualisation uncluttered and legible
         """
-        
-        for char in char_list:
-            if char in line:
-                indices = [i for i, c in enumerate(line) if c == char]
-                actual_import = line[indices[-2] + 1: indices[-1]]
-                
-                return self.determine_file(line, actual_import, path)
-            
-            
-    def determine_file(self, line, actual_import, path):
-        """
-        Determines the path and actual file of the import
-        """
-    
-        if '/' in actual_import:
-            indices = [i for i, char in enumerate(actual_import) if char == '/']
-            import_file = actual_import[indices[-1] + 1:]
-            import_path = actual_import[:indices[-1]]
-            
-            if actual_import[:2] == './':
-                return {
-                    'path': '/'.join([ path, actual_import[2:indices[-1]] ]),
-                    'file': import_file,
-                    'line': line
-                }
-            
-            if actual_import[:2] == '..':
-                jump_ups = len(re.findall('\.\.', actual_import))
-                path = path.split('/')
-                
-                for i in range(jump_ups):
-                    del path[-1]
-                    import_path = import_path[3:]
-                    
-                return {
-                    'path': '/'.join(['/'.join(path), import_path]),
-                    'file': import_file,
-                    'line': line
-                }
-        
-        else:
-            return {
-                'path': path,
-                'file': actual_import,
-                'line': line
-            }
-        
+
+        print(self.files)
+        if len(self.files) > 200:
+            self.files = [node for node in self.files if len(node['imports']) == 0 and len(node['dependents']) == 0]
+
         
     def check_for_templates(self):
         """
@@ -158,24 +100,3 @@ class Networker:
             if extension in self.extensions:
                 self.check_templates = True
                 break
-                
-    def get_import(self, line):
-        """
-        Get imported function/variable from line
-        """
-        
-        if len(re.findall('{', line)) > 0:
-            opening = line.index('{')
-            closing = line.index('}')
-            
-            return line[opening + 1:closing]
-                
-    def path_joins(self, first_join, second_join, condition=True):
-        """
-        Will determine kind of join based on condition
-        """
-        
-        if condition:
-            return ''.join([ first_join, second_join ])
-        else:
-            return '/'.join([ first_join, second_join ])
